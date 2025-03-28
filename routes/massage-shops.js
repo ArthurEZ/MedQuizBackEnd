@@ -7,9 +7,6 @@ const router = express.Router();
 const reservationRouter = require('./reservations');
 router.use('/:massageShopId/reservations', reservationRouter);
 
-const ratingRouter = require('./rating');
-router.use('/:massageShopId/rating', ratingRouter);
-
 router.route('/')
     .get(getMassageShops)
     .post(protect, authorize('admin'), createMassageShop);

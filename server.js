@@ -29,9 +29,6 @@ app.use('/api/v1/auth', auth);
 const reservation = require('./routes/reservations')
 app.use('/api/v1/reservations', reservation);
 
-const rating = require('./routes/rating');
-app.use('/api/v1/rating', rating);
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
 
