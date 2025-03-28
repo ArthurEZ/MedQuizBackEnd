@@ -20,14 +20,14 @@ app.use(mongoSanitize());
 app.use(helmet());
 app.use(xss());
 
-const massage_shops = require('./routes/massage-shops');
-app.use('/api/v1/massage-shops', massage_shops);
+const category = require('./routes/category');
+app.use('/api/v1/category', category);
 
 const auth = require('./routes/auth');
 app.use('/api/v1/auth', auth);
 
-const reservation = require('./routes/reservations')
-app.use('/api/v1/reservations', reservation);
+const quiz = require('./routes/quiz')
+app.use('/api/v1/quiz', quiz);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
