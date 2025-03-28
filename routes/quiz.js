@@ -1,5 +1,5 @@
 const express = require('express');
-const { getQuizzes, getQuizzesByCategory, getQuiz, createQuiz, updateQuiz, deleteQuiz} = require('../controllers/category');
+const { getQuizzes, getQuizzesByCategory, getQuiz, createQuiz, updateQuiz, deleteQuiz} = require('../controllers/quiz');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -7,7 +7,7 @@ const router = express.Router();
 router.route('/')
     .get(getQuizzes)
     .post(protect, authorize('admin'), createQuiz);
-    
+
 router.route('/:category').get(getQuizzesByCategory);
 
 router.route('/:id')
