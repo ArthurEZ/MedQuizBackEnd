@@ -8,7 +8,7 @@ router.route('/')
     .get(getQuizzes)
     .post(protect, authorize('admin'), createQuiz);
 
-router.route('/:category').get(getQuizzesByCategory);
+router.get("/cate/:categoryId", getQuizzesByCategory);
 
 router.route('/:id')
     .get(getQuiz)

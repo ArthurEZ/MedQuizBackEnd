@@ -1,4 +1,5 @@
 const Quiz = require('../models/Quiz')
+const Category = require('../models/Category')
 
 exports.getQuizzes = async (req, res, next) => {
     try {
@@ -13,12 +14,19 @@ exports.getQuizzes = async (req, res, next) => {
 
 exports.getQuizzesByCategory = async (req, res, next) => {
     try {
-        const quiz = await Quiz.find({ category: categoryId }).populate("category");
-        res.status(200).json({ success: true, count: quiz.length, data: quiz });
-      } catch (error) {
+        const { categoryId } = req.params; // Extract category ID from request parameters
+
+        if (!categoryId) {
+            return res.status(400).json({ success: false, message: "Category ID is required" });
+        }
+
+        const quizzes = await Quiz.find({ category: categoryId }).populate("category"); // Find quizzes by category ID
+
+        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
+    } catch (error) {
         console.error("Error fetching quizzes:", error);
-        res.status(400).json({ success: false });
-      }
+        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
+    }
 }
 
 exports.getQuiz = async (req, res, next) => {
