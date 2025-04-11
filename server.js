@@ -20,8 +20,8 @@ app.use(mongoSanitize());
 app.use(helmet());
 app.use(xss());
 
-const category = require('./routes/category');
-app.use('/api/v1/category', category);
+const score = require('./routes/score');
+app.use('/api/v1/score', score);
 
 const auth = require('./routes/auth');
 app.use('/api/v1/auth', auth);
