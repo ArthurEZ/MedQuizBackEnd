@@ -1,5 +1,4 @@
 const Quiz = require('../models/Quiz')
-const Category = require('../models/Category')
 
 exports.getQuizzes = async (req, res, next) => {
     try {
@@ -14,13 +13,7 @@ exports.getQuizzes = async (req, res, next) => {
 
 exports.getQuizzesByCategory = async (req, res, next) => {
     try {
-        const { categoryId } = req.params; // Extract category ID from request parameters
-
-        if (!categoryId) {
-            return res.status(400).json({ success: false, message: "Category ID is required" });
-        }
-
-        const quizzes = await Quiz.find({ category: categoryId }).populate("category"); // Find quizzes by category ID
+        const quizzes = await Quiz.find({ category: req.params.category }).populate("category"); // Find quizzes by category ID
 
         res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
     } catch (error) {

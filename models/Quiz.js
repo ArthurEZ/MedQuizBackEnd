@@ -17,7 +17,6 @@ const QuizSchema = new mongoose.Schema({
     },
     choice:[{
         type: String
-
     }],
     correctAnswer:{
         type:String,
