@@ -10,23 +10,26 @@ const cors = require('cors')
 const app = express();
 
 const connectDB = require('./config/db');
+
 connectDB();
 
 app.use(cors());
 
+//security
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(helmet());
 app.use(xss());
 
+//create router
 const score = require('./routes/score');
-app.use('/api/v1/score', score);
-
 const auth = require('./routes/auth');
-app.use('/api/v1/auth', auth);
-
 const quiz = require('./routes/quiz')
+
+//use router
+app.use('/api/v1/score', score);
+app.use('/api/v1/auth', auth);
 app.use('/api/v1/quiz', quiz);
 
 const PORT = process.env.PORT || 5000;
