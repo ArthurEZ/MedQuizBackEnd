@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.route('/')
     .get(getQuizzes)
-    .post(protect, authorize('admin'), createQuiz);
+    .post(protect, authorize('admin','S-admin'), createQuiz);
 
 router.get("/cate/:categoryId", getQuizzesByCategory);
 
 router.route('/:id')
     .get(getQuiz)
-    .put(protect, authorize('admin'), updateQuiz)
-    .delete(protect, authorize('admin'), deleteQuiz);
+    .put(protect, authorize('admin','S-admin'), updateQuiz)
+    .delete(protect, authorize('admin','S-admin'), deleteQuiz);
 
 module.exports = router;

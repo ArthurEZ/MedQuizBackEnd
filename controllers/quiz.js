@@ -48,7 +48,9 @@ exports.getQuiz = async (req, res, next) => {
 exports.createQuiz = async (req, res, next) => {
     try {
         const quiz = await Quiz.create(req.body);
-
+        if(req.user.role == 'S-admin'){
+            req.body.proved = true;
+        }
         res.status(201).json({ success: true, data: quiz });
     } catch (error) {
         console.error(error);
