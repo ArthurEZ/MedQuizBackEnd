@@ -21,7 +21,9 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     year: {
-        type: String,
+        type: Number,
+        min: 1,
+        max: 6,
         required: true
     },
     role: {

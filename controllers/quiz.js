@@ -13,8 +13,8 @@ exports.getQuizzes = async (req, res, next) => {
 
 exports.getQuizzesByCategory = async (req, res, next) => {
     try {
-        const quizzes = await Quiz.find({ category: req.params.category }).populate("category"); // Find quizzes by category ID
-
+        const quizzes = await Quiz.find({ category: req.params.category }); 
+        if(quizzes.length <= 0) res.status(500).json({ success: false, message: "there is no this category"})
         res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
     } catch (error) {
         console.error("Error fetching quizzes:", error);
@@ -25,7 +25,6 @@ exports.getQuizzesByCategory = async (req, res, next) => {
 exports.getQuiz = async (req, res, next) => {
     try {
         const quiz = await Quiz.findById(req.params.id);
-
         if (!quiz) {
             return res.status(400).json({ success: false });
         }
