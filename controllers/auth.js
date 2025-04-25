@@ -132,3 +132,33 @@ exports.getMe = async (req, res, next) => {
         res.status(400).json({ success: false });
     }
 };
+
+exports.updateUser = async (req, res) => {
+    try {
+      if (req.params.id !== req.user.id && req.user.role === "user" ) {
+        return res.status(401).json({
+          success: false,
+          message: "User is not authorized to update this user.",
+        });
+      }
+  
+      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+      if (!user) {
+        return res.status(400).json({ success: false });
+      }
+      res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: "please check your tel.",
+      });
+    }
+  };
+  
