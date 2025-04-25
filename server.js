@@ -25,12 +25,15 @@ app.use(xss());
 //create router
 const score = require('./routes/score');
 const auth = require('./routes/auth');
-const quiz = require('./routes/quiz')
+const quiz = require('./routes/quiz');
+const category = require('./routes/category')
 
 //use router
 app.use('/api/v1/score', score);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/quiz', quiz);
+app.use('/api/v1/category', category);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
