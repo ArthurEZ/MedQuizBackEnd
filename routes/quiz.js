@@ -1,18 +1,20 @@
 const express = require('express');
-const { getQuizzes, getQuizzesByCategory, getQuiz, createQuiz, updateQuiz, deleteQuiz} = require('../controllers/quiz');
+const { getQuizzes, getQuizzesByCategory, getQuiz, createQuiz, updateQuiz, approveQuiz, deleteQuiz} = require('../controllers/quiz');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
 router.route('/')
     .get(getQuizzes)
-    .post(protect, authorize('admin','S-admin'), createQuiz);
+    .post(protect, createQuiz);
 
-router.get("/cate/:category", getQuizzesByCategory);
+router.get("/cate/:categoryID", getQuizzesByCategory);
 
 router.route('/:id')
     .get(getQuiz)
-    .put(protect, authorize('admin','S-admin'), updateQuiz)
-    .delete(protect, authorize('admin','S-admin'), deleteQuiz);
+    .put(protect, updateQuiz)
+    .delete(protect, deleteQuiz);
+
+router.put('/:id/approve', protect, authorize('admin', 'S-admin'), approveQuiz);
 
 module.exports = router;

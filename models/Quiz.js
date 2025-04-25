@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const QuizSchema = new mongoose.Schema({
     user:{
         type: mongoose.Schema.ObjectId,
+        ref: "User",
         required: true,
     },
     question: {
@@ -10,8 +11,9 @@ const QuizSchema = new mongoose.Schema({
         required: true,
     },
     category:{
-        type: String,
-        require: true
+        type: mongoose.Schema.ObjectId,
+        ref: "Category",
+        required: true,
     },
     type:{
         type:String,
@@ -34,6 +36,16 @@ const QuizSchema = new mongoose.Schema({
         min: 0,
         max: 2
     },    
+    isApproved: {
+        type: Boolean,
+        default: false,
+    },
+    pendingDelete: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 2
+    },
     createdAt: {
         type: Date,
         default: Date.now
