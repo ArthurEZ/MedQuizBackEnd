@@ -10,6 +10,11 @@ const QuizSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    subject:{
+        type: mongoose.Schema.ObjectId,
+        ref: "Subject",
+        require: true
+    },
     category:{
         type: mongoose.Schema.ObjectId,
         ref: "Category",
@@ -28,23 +33,11 @@ const QuizSchema = new mongoose.Schema({
         required: true
     },
     img:{
-        type:String
+        type:[String]
     },
-    proved: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 2
-    },    
-    isApproved: {
+    approved:{
         type: Boolean,
-        default: false,
-    },
-    pendingDelete: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 2
+        default: false
     },
     createdAt: {
         type: Date,
