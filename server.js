@@ -36,7 +36,7 @@ app.use('/api/v1/auth', auth);
 app.use('/api/v1/quiz', quiz);
 app.use('/api/v1/category', category);
 app.use('/api/v1/subject', subject);
-app.use('./api/v1/approved', approved);
+app.use('/api/v1/approved', approved);
 
 
 const PORT = process.env.PORT || 5000;

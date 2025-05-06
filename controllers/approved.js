@@ -84,14 +84,18 @@ exports.deleteApproved= async (req, res, next) => {
 
 exports.approvedQuiz = async (req, res) => {
     try {
-      // Check if the user has permission to approve the quiz
-      if (req.user.role !== 'admin' && req.user.role !== 'S-admin') {
-        return res.status(403).json({ success: false, message: "You have no permission to approve quiz" });
+      const { role, id: adminID } = req.user;
+      const { quizID } = req.params;
+      const { Approved: isApproved } = req.body; // Boolean: true = approve, false = deny
+  
+      if (!['admin', 'S-admin'].includes(role)) {
+        return res.status(403).json({ success: false, message: "You have no permission to approve or deny quizzes" });
       }
   
-      const quizID = req.params.quizID;
+      if (typeof isApproved !== 'boolean') {
+        return res.status(400).json({ success: false, message: "'Approved' field must be a boolean" });
+      }
   
-      // Validate quiz ID
       if (!mongoose.Types.ObjectId.isValid(quizID)) {
         return res.status(400).json({ success: false, message: "Invalid quiz ID" });
       }
@@ -101,48 +105,57 @@ exports.approvedQuiz = async (req, res) => {
         return res.status(404).json({ success: false, message: "Quiz not found" });
       }
   
-      // If the user is S-admin, approve the quiz directly without the need for other approvals
-      if (req.user.role === 'S-admin') {
-        await Quiz.findByIdAndUpdate(quizID, { approved: true });
-        const updatedQuiz = await Quiz.findById(quizID);
+      // S-admin can approve directly
+      if (role === 'S-admin' && isApproved === true) {
+        const updatedQuiz = await Quiz.findByIdAndUpdate(quizID, { approved: true }, { new: true });
+        await Approved.deleteMany({ quiz: quizID }); // clear any previous approvals
         return res.status(200).json({
           success: true,
-          message: "Quiz approved by S-admin",
+          message: "Quiz approved directly by S-admin",
           data: updatedQuiz
         });
       }
   
-      // If the user is admin, handle the approval process with multiple admins
+      // Save admin approval/denial
       await Approved.findOneAndUpdate(
-        { admin: req.user.id, quiz: quizID },
-        {},
+        { admin: adminID, quiz: quizID },
+        { Approved: isApproved },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
   
-      const totalApprovals = await Approved.countDocuments({ quiz: quizID });
+      // Count approvals and denials
+      const approvals = await Approved.countDocuments({ quiz: quizID, Approved: true });
+      const denials = await Approved.countDocuments({ quiz: quizID, Approved: false });
   
-      // If 2 or more unique approvals → approve quiz + delete approvals
-      if (totalApprovals >= 2) {
-        await Quiz.findByIdAndUpdate(quizID, { approved: true });
+      if (approvals >= 2) {
         const updatedQuiz = await Quiz.findByIdAndUpdate(quizID, { approved: true }, { new: true });
         await Approved.deleteMany({ quiz: quizID });
         return res.status(200).json({
-            success: true,
-            message: "Quiz approved and approvals cleared",
-            data: updatedQuiz
+          success: true,
+          message: "Quiz approved by 2 admins",
+          data: updatedQuiz
+        });
+      }
+  
+      if (denials >= 2) {
+        await Quiz.findByIdAndDelete(quizID);
+        await Approved.deleteMany({ quiz: quizID });
+        return res.status(200).json({
+          success: true,
+          message: "Quiz denied and deleted by 2 admins"
         });
       }
   
       return res.status(200).json({
         success: true,
-        message: "Approval recorded. Waiting for more approvals.",
-        totalApprovals
+        message: `Your decision has been recorded. Waiting for more responses.`,
+        approvals,
+        denials
       });
+  
     } catch (error) {
       console.error(error);
-      if (error.code === 11000) {
-        return res.status(409).json({ success: false, message: "You already approved this quiz" });
-      }
       res.status(400).json({ success: false, error: error.message });
     }
-};
+  };
+  

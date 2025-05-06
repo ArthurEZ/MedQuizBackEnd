@@ -1,9 +1,22 @@
-const Category = require('../models/Category')
+const Category = require('../models/Category');
+const Subject = require('../models/Subject');
 
 exports.getCategories = async (req, res, next) => {
     try {
         const category = await Category.find();
         if(category.length <= 0) return res.status(404).json({ success: false, message: "there is no category"});
+        res.status(200).json({ success: true, count: category.length, data: category });
+    } 
+    catch (error) {
+        console.error(error);
+        res.status(400).json({ success: false, error: error.message });
+    }
+}
+
+exports.getCategoriesFromSubject = async (req, res) => {
+    try {
+        const category = await Category.find({subject: req.params.subjectID});
+        if(category.length <= 0) return res.status(404).json({ success: false, message: "there is no category in this subject"});
         res.status(200).json({ success: true, count: category.length, data: category });
     } 
     catch (error) {

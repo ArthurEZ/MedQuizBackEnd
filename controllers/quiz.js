@@ -1,4 +1,6 @@
-const Quiz = require('../models/Quiz')
+const Quiz = require('../models/Quiz');
+const Subject = require('../models/Subject');
+const Category = require('../models/Category');
 
 exports.getQuizzes = async (req, res, next) => {
     try {
@@ -49,6 +51,13 @@ exports.createQuiz = async (req, res, next) => {
         if(req.user.role !== 'S-admin'){
             req.body.approved = false;
         }
+        const subject = Subject.find(req.body.subject);
+        const category = Category.find(req.body.category);
+        if(!subject)
+            return res.status(404).json({success: false, message: "there is no this subject"});
+        if(!category)
+            return res.status(404).json({success: false, message: "there is no this category"});
+        
         const quiz = await Quiz.create(req.body);
         res.status(201).json({ success: true, data: quiz });
     } catch (error) {

@@ -27,7 +27,6 @@ router
     .put(protect, updateQuiz)
     .delete(protect, authorize("S-admin", "admin"), deleteQuiz);
 
-// ✅ (Optional) Approve quiz endpoint — if still needed
-// router.put('/:id/approve', protect, authorize('admin', 'S-admin'), approveQuiz);
+
 
 module.exports = router;
