@@ -11,71 +11,23 @@ exports.getQuizzes = async (req, res, next) => {
     }
 }
 
-exports.getQuizzesBySubject = async (req, res, next) => {
-    try {
-        const quizzes = await Quiz.find({ subject: req.params.subjectID }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz in this subject"})
-        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
-    } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
-    }
-}
+exports.getQuizzesByFilter = async (req, res) => {
+    const filter = {};
+    if (req.params.subjectID) filter.subject = req.params.subjectID;
+    if (req.params.categoryID) filter.category = req.params.categoryID;
+    if (req.query.approved !== undefined) filter.approved = req.query.approved === 'true';
 
-exports.getQuizzesByCategoryAndApproved = async (req, res, next) => {
     try {
-        const quizzes = await Quiz.find({ subject: req.params.subjectID, approved: true }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz in this subject that approved"})
+        const quizzes = await Quiz.find(filter);
+        if (quizzes.length === 0) {
+            return res.status(404).json({ success: false, message: "No quizzes found with specified filter" });
+        }
         res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
     } catch (error) {
         console.error("Error fetching quizzes:", error);
         res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
     }
-}
-
-exports.getQuizzesByCategoryAndNotApproved = async (req, res, next) => {
-    try {
-        const quizzes = await Quiz.find({ subject: req.params.subjectID, approved: false }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz in this subject that not approved"})
-        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
-    } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
-    }
-}
-
-exports.getQuizzesByCategory = async (req, res, next) => {
-    try {
-        const quizzes = await Quiz.find({ category: req.params.categoryID }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz in this category"})
-        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
-    } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
-    }
-}
-
-exports.getQuizzesByCategoryAndApproved = async (req, res, next) => {
-    try {
-        const quizzes = await Quiz.find({ category: req.params.categoryID, approved: true }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz in this category that approved"})
-        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
-    } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
-    }
-}
-
-exports.getQuizzesByCategoryAndNotApproved = async (req, res, next) => {
-    try {
-        const quizzes = await Quiz.find({ category: req.params.categoryID, approved: false }); 
-        if(quizzes.length <= 0) res.status(404).json({ success: false, message: "there is no quiz this category that not approved"})
-        res.status(200).json({ success: true, count: quizzes.length, data: quizzes });
-    } catch (error) {
-        console.error("Error fetching quizzes:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch quizzes" });
-    }
-}
+};
 
 exports.getQuiz = async (req, res, next) => {
     try {
@@ -94,8 +46,8 @@ exports.getQuiz = async (req, res, next) => {
 
 exports.createQuiz = async (req, res, next) => {
     try {
-        if(req.user.role == 'S-admin'){
-            req.body.approved = true;
+        if(req.user.role !== 'S-admin'){
+            req.body.approved = false;
         }
         const quiz = await Quiz.create(req.body);
         res.status(201).json({ success: true, data: quiz });
@@ -132,12 +84,7 @@ exports.updateQuiz = async (req, res) => {
 
 exports.deleteQuiz = async (req, res, next) => {
     try {
-        const quiz = await Quiz.findById(req.params.id);
 
-        if (!quiz) {
-            return res.status(404).json({ success: false });
-        }
-        
         const isAdmin = req.user.role === "admin";
         const isSAdmin = req.user.role === "S-admin";
 
@@ -148,20 +95,11 @@ exports.deleteQuiz = async (req, res, next) => {
             });
         }
 
-        if (req.user.role === 'S-admin' || req.user.role === 'user'){
-            quiz.pendingDelete = 2;
+        const quiz = await Quiz.findByIdAndDelete(req.params.id);
+        if (!quiz) {
+            return res.status(400).json({ success: false });
         }
-        else if (req.user.role === 'admin') {
-            quiz.pendingDelete = (quiz.pendingDelete || 0) + 1;
-        }
-
-        if(quiz.pendingDelete === 2) {
-            await quiz.remove();
-            return res.status(200).json({ success: true, data: {} });
-        }
-
-        await quiz.save();
-        res.status(200).json({ success: true, data: quiz.pendingDelete });
+        res.status(200).json({ success: true, data: {} });
 
     } catch (error) {
         console.error(error);

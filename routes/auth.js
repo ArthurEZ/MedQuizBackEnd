@@ -8,6 +8,6 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/logout', protect, logout);
 router.get('/me', protect, getMe);
-router.put("/updateUser/:id", protect, authorize("admin", "user"), updateUser);
+router.put("/updateUser/:id", protect, authorize("S-admin","admin", "user"), updateUser);
 
 module.exports = router;

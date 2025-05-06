@@ -26,13 +26,17 @@ app.use(xss());
 const score = require('./routes/score');
 const auth = require('./routes/auth');
 const quiz = require('./routes/quiz');
-const category = require('./routes/category')
+const category = require('./routes/category');
+const subject = require('./routes/subject');
+const approved = require('./routes/approved')
 
 //use router
 app.use('/api/v1/score', score);
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/quiz', quiz);
 app.use('/api/v1/category', category);
+app.use('/api/v1/subject', subject);
+app.use('./api/v1/approved', approved);
 
 
 const PORT = process.env.PORT || 5000;

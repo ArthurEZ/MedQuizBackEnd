@@ -1,20 +1,33 @@
 const express = require('express');
-const { getQuizzes, getQuizzesByCategory, getQuiz, createQuiz, updateQuiz, approveQuiz, deleteQuiz} = require('../controllers/quiz');
+const {
+    getQuizzes,
+    getQuizzesByFilter,
+    getQuiz,
+    createQuiz,
+    updateQuiz,
+    deleteQuiz
+} = require('../controllers/quiz');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.route('/')
-    .get(getQuizzes)
-    .post(protect, createQuiz);
+// 🧪 General filtered quiz fetch (e.g. ?subjectID=123&categoryID=abc&approved=true)
+router.get('/filter/:subjectID?/:categoryID?', getQuizzesByFilter);
 
-router.get("/cate/:categoryID", getQuizzesByCategory);
+// 🔍 Get all quizzes (unfiltered)
+router.get('/', getQuizzes);
 
-router.route('/:id')
+// ➕ Create quiz (protected)
+router.post('/', protect, createQuiz);
+
+// 📄 Single quiz operations (get/update/delete)
+router
+    .route('/:id')
     .get(getQuiz)
     .put(protect, updateQuiz)
-    .delete(protect, deleteQuiz);
+    .delete(protect, authorize("S-admin", "admin"), deleteQuiz);
 
-router.put('/:id/approve', protect, authorize('admin', 'S-admin'), approveQuiz);
+// ✅ (Optional) Approve quiz endpoint — if still needed
+// router.put('/:id/approve', protect, authorize('admin', 'S-admin'), approveQuiz);
 
 module.exports = router;
