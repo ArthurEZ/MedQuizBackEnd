@@ -21,8 +21,7 @@ router.get('/', getQuizzes);
 router.post('/', protect, createQuiz);
 
 // 📄 Single quiz operations (get/update/delete)
-router
-    .route('/:id')
+router.route('/:id')
     .get(getQuiz)
     .put(protect, updateQuiz)
     .delete(protect, authorize("S-admin", "admin"), deleteQuiz);

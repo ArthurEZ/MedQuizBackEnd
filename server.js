@@ -5,7 +5,9 @@ const mongoSanitize = require('express-mongo-sanitize');
 const dotenv = require('dotenv').config({ path: './config/config.env' });
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const cors = require('cors')
+const cors = require('cors');
+const path = require('path');
+
 
 const app = express();
 
@@ -29,6 +31,7 @@ const quiz = require('./routes/quiz');
 const category = require('./routes/category');
 const subject = require('./routes/subject');
 const approved = require('./routes/approved')
+const upload = require('./routes/upload')
 
 //use router
 app.use('/api/v1/score', score);
@@ -37,7 +40,8 @@ app.use('/api/v1/quiz', quiz);
 app.use('/api/v1/category', category);
 app.use('/api/v1/subject', subject);
 app.use('/api/v1/approved', approved);
-
+app.use('/public', express.static(path.join(__dirname, 'public'))); // Serve images
+app.use('/', upload);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));

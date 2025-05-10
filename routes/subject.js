@@ -6,19 +6,30 @@ const {
   updateSubject,
   deleteSubject
 } = require('../controllers/subject');
+const upload = require('../middleware/upload');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Route for getting all subjects
+// GET all subjects | POST create new subject with image
 router.route('/')
-    .get(getSubjects) // GET all subjects
-    .post(protect, authorize('S-admin'), createSubject); // POST create new subject (only for S-admin)
+  .get(getSubjects)
+  .post(
+    protect,
+    authorize('S-admin'),
+    upload.single('image'),      // <-- Add image upload middleware
+    createSubject
+  );
 
-// Route for getting, updating, and deleting a specific subject by ID
+// GET by ID | PUT update with image | DELETE
 router.route('/:id')
-    .get(getSubject) // GET subject by ID
-    .put(protect, authorize('S-admin'), updateSubject) // PUT update subject by ID (only for S-admin)
-    .delete(protect, authorize('S-admin'), deleteSubject); // DELETE subject by ID (only for S-admin)
+  .get(getSubject)
+  .put(
+    protect,
+    authorize('S-admin'),
+    upload.single('image'),      // <-- Allow updating image
+    updateSubject
+  )
+  .delete(protect, authorize('S-admin'), deleteSubject);
 
 module.exports = router;
